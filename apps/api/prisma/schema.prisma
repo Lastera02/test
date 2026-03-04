@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum OrderStatus {
+  NEW
+  PAID
+  SHIPPED
+  DONE
+  CANCELED
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(USER)
+  createdAt    DateTime @default(now())
+  refreshToken String?
+  carts        Cart[]
+  orders       Order[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Brand {
+  id       Int       @id @default(autoincrement())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model CarBrand {
+  id     Int        @id @default(autoincrement())
+  name   String
+  slug   String     @unique
+  models CarModel[]
+}
+
+model CarModel {
+  id             Int                    @id @default(autoincrement())
+  brandId        Int
+  name           String
+  slug           String
+  brand          CarBrand               @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  generations    CarGeneration[]
+  compatibilities ProductCompatibility[]
+
+  @@unique([brandId, slug])
+}
+
+model CarGeneration {
+  id       Int      @id @default(autoincrement())
+  modelId  Int
+  name     String
+  yearFrom Int
+  yearTo   Int?
+  model    CarModel @relation(fields: [modelId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id              Int                    @id @default(autoincrement())
+  name            String
+  slug            String                 @unique
+  sku             String                 @unique
+  brandId         Int
+  categoryId      Int
+  price           Decimal                @db.Decimal(10, 2)
+  stockQty        Int                    @default(0)
+  imageUrl        String
+  description     String
+  specsJson       Json
+  createdAt       DateTime               @default(now())
+  brand           Brand                  @relation(fields: [brandId], references: [id])
+  category        Category               @relation(fields: [categoryId], references: [id])
+  compatibilities ProductCompatibility[]
+  cartItems       CartItem[]
+  orderItems      OrderItem[]
+}
+
+model ProductCompatibility {
+  productId  Int
+  carModelId Int
+  yearFrom   Int?
+  yearTo     Int?
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  carModel   CarModel @relation(fields: [carModelId], references: [id], onDelete: Cascade)
+
+  @@id([productId, carModelId])
+}
+
+model Cart {
+  id        Int       @id @default(autoincrement())
+  userId    Int?
+  sessionId String?
+  user      User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+
+  @@unique([userId])
+  @@unique([sessionId])
+}
+
+model CartItem {
+  id            Int      @id @default(autoincrement())
+  cartId         Int
+  productId      Int
+  qty            Int      @default(1)
+  priceSnapshot  Decimal  @db.Decimal(10, 2)
+  cart           Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  userId       Int?
+  status       OrderStatus @default(NEW)
+  totalPrice   Decimal     @db.Decimal(10, 2)
+  customerName String
+  phone        String
+  city         String
+  address      String
+  deliveryType String
+  paymentType  String
+  comment      String?
+  createdAt    DateTime    @default(now())
+  user         User?       @relation(fields: [userId], references: [id])
+  items        OrderItem[]
+}
+
+model OrderItem {
+  id            Int     @id @default(autoincrement())
+  orderId       Int
+  productId     Int
+  nameSnapshot  String
+  skuSnapshot   String
+  priceSnapshot Decimal @db.Decimal(10, 2)
+  qty           Int
+  order         Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product       Product @relation(fields: [productId], references: [id])
+}

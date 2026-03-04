@@ -1,0 +1,17 @@
+{
+  "name": "autoparts-mvp",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @autoparts/shared && npm run build -w @autoparts/api && npm run build -w @autoparts/web",
+    "dev": "concurrently \"npm run dev -w @autoparts/api\" \"npm run dev -w @autoparts/web\"",
+    "test": "npm run test -w @autoparts/api"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "^5.6.3"
+  }
+}

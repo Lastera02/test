@@ -1,11 +1,10 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Мой сайт</title>
-</head>
-<body>
-  <h1>Сайт работает ✅</h1>
-</body>
-</html>
+<?php
+session_start();
+
+if (isset($_SESSION['admin_id'])) {
+    header('Location: dashboard.php');
+    exit;
+}
+
+header('Location: login.php');
+exit;

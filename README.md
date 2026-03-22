@@ -1,6 +1,34 @@
-git clone git@github.com:Lastera02/kity.git
-cd kity
-echo "# kity" > README.md
-git add README.md
-git commit -m "Initial commit"
-git push origin main
+# Service Center CRM (MVP)
+
+Простой MVP сайт для сервисного центра по ремонту техники.
+
+## Возможности
+
+- Авторизация администратора (сессии)
+- Защищенная админ-панель
+- CRUD заказов
+- Поиск по заказам
+- Фильтрация по статусу
+- Быстрое обновление статуса заказа в таблице
+
+## Стек
+
+- PHP 8+
+- MySQL 8+
+- PDO (подготовленные запросы)
+- HTML/CSS без тяжелых фреймворков
+
+## Быстрый запуск
+
+1. Скопируйте проект в папку веб-сервера.
+2. Создайте БД и таблицы:
+   ```bash
+   mysql -u root -p < database.sql
+   ```
+3. Проверьте настройки в `config/config.php`.
+4. Откройте `http://localhost/.../login.php`.
+
+## Тестовый вход
+
+- Логин: `admin`
+- Пароль: `admin12345`
